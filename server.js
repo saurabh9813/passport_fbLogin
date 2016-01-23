@@ -2,9 +2,9 @@ var express = require('express');
 var app = express();
 var port = 3000;
 
-var morgan = require('morgan');
 var cookieParser = require('cookie-parser');
 var session = require('express-session');
+var morgan = require('morgan');
 var mongoose = require('mongoose');
 var bodyParser = require('body-parser');
 var passport = require('passport');
@@ -26,7 +26,18 @@ app.use(flash());
 
 app.set('view engine','ejs');
 
-require('./routes/routes.js')(app, passport);
+app.use(function(req, res, next){
+	console.log("" + req.user);
+	next();
+});
+
+var auth = express.Router();
+require('./routes/auth.js')(auth, passport);
+app.use('/auth', auth);
+
+var secure = express.Router();
+require('./routes/secure.js')(secure, passport);
+app.use('/', secure);
 
 app.listen(port,function(){
   console.log('Server running on port: ' + port);
